@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Link Generator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #7C3AED;
+      --accent-color: #10B981;
+      --background-color: #F5F3FF;
+      --input-border: #DDD6FE;
+    }
+
+    body {
+      background: var(--background-color);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .container-main {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .form-label {
+      color: #1F2937;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+      border: 2px solid var(--input-border);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+    }
+
+    .input-icon {
+      color: var(--primary-color);
+      margin-right: 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #6D28D9;
+      transform: translateY(-1px);
+    }
+
+    .error-popup, .success-popup {
+      display: flex;
+      align-items: center;
+      padding: 0.8rem 1.2rem;
+      border-radius: 6px;
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+      z-index: 1000;
+    }
+
+    .error-popup {
+      background: #FEE2E2;
+      color: #B91C1C;
+    }
+
+    .success-popup {
+      background: #D1FAE5;
+      color: #059669;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; top: 1rem; }
+      to { opacity: 1; top: 1.5rem; }
+    }
+
+    .output-area {
+      margin-top: 1.5rem;
+    }
+
+    .copy-btn {
+      background: var(--accent-color) !important;
+      border: none;
+      padding: 0.4rem 0.8rem !important;
+      font-size: 0.85rem !important;
+    }
+
+    .copy-btn:hover {
+      background: #059669 !important;
+    }
+
+    textarea {
+      min-height: 120px;
+      font-size: 0.85rem !important;
+      background: #EDE9FE !important;
+      border-color: #C4B5FD !important;
+      transition: opacity 0.3s ease;
+    }
+
+    .form-text {
+      font-size: 0.75rem;
+      color: #6B7280;
+      margin-top: 0.25rem;
+    }
+
+    .fade-in {
+      animation: textFadeIn 0.3s ease-out;
+    }
+
+    @keyframes textFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="error-popup" id="errorPopup">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <span class="message"></span>
+  </div>
+  
+  <div class="success-popup" id="successPopup">
+    <i class="fas fa-check-circle me-2"></i>
+    <span class="message"></span>
+  </div>
+
+  <div class="container-main">
+    <h3 class="text-center mb-4" style="color: var(--primary-color);">
+      <i class="fas fa-link me-2"></i>Anime Link Generator
+    </h3>
+
+    <form id="linkForm">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label"><i class="fas fa-tv input-icon"></i>Show Name</label>
+          <input type="text" id="showName" class="form-control" placeholder="Enter anime name (e.g., One Piece, Bleach)">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label"><i class="fas fa-list-ol input-icon"></i>Season</label>
+          <input type="text" id="season" class="form-control" placeholder="S1, S2, etc.">
+        </div>
+        
+        <div class="col-md-6">
+          <label class="form-label"><i class="fas fa-play-circle input-icon"></i>Episode Range</label>
+          <input type="text" id="episodeRange" class="form-control" placeholder="Start-End (e.g., 1-12, 001-012)">
+          <small class="form-text">End episode will be used as total if not specified below</small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label"><i class="fas fa-calculator input-icon"></i>Total Episodes</label>
+          <input type="number" id="totalEpisodes" class="form-control" placeholder="Optional (e.g., 100, 1000)">
+          <small class="form-text">Leave empty to use end episode number</small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label"><i class="fas fa-video input-icon"></i>Quality</label>
+          <input type="text" id="quality" class="form-control" placeholder="480p, 720p, 1080p">
+        </div>
+        
+        <div class="col-md-6">
+          <label class="form-label"><i class="fas fa-volume-up input-icon"></i>Audio</label>
+          <input type="text" id="audio" class="form-control" placeholder="Sub, Dub, or Dual">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label"><i class="fas fa-link input-icon"></i>Start Link</label>
+          <input type="url" id="startLink" class="form-control" placeholder="https://t.me/c/channelID/messageID">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label"><i class="fas fa-at input-icon"></i>Channel Username</label>
+          <input type="text" id="channelUsername" class="form-control" placeholder="Enter without @ (e.g., Ani_Weebs)">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label"><i class="fas fa-code input-icon"></i>Custom Format</label>
+          <textarea id="customFormat" class="form-control" rows="2"
+            placeholder="{ShowName} [{Season} {Episode}] {Quality} [{Audio}] @{ChannelUsername}.mkv"></textarea>
+        </div>
+      </div>
+
+      <button type="button" onclick="generateLinks()" class="btn btn-primary w-100 mt-3">
+        <i class="fas fa-magic me-2"></i>Generate Links
+      </button>
+    </form>
+
+    <div class="output-area">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="m-0 fs-6"><i class="fas fa-file-code me-2"></i>Generated Links</h5>
+        <button onclick="copyToClipboard()" class="btn copy-btn text-white">
+          <i class="fas fa-copy me-2"></i>Copy
+        </button>
+      </div>
+      <textarea id="generatedLinks" class="form-control bg-light border" 
+        rows="5" readonly>Your links will be displayed here...</textarea>
+    </div>
+
+    <div class="text-center mt-3 text-muted small">
+      Crafted with <i class="fas fa-heart text-danger"></i> by 
+      <a href="https://t.me/Rai_Yan_00" class="text-decoration-none">@Rai_Yan_00</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let fullOutput = "";
+    let totalEpisodesManual = false;
+    let isProgrammaticChange = false;
+
+    function showError(message) {
+      const errorPopup = document.getElementById('errorPopup');
+      errorPopup.querySelector('.message').textContent = message;
+      errorPopup.style.display = 'flex';
+      setTimeout(() => errorPopup.style.display = 'none', 3000);
+    }
+
+    function showSuccess(message) {
+      const successPopup = document.getElementById('successPopup');
+      successPopup.querySelector('.message').textContent = message;
+      successPopup.style.display = 'flex';
+      setTimeout(() => successPopup.style.display = 'none', 3000);
+    }
+
+    function updateOutput(text) {
+      const textarea = document.getElementById('generatedLinks');
+      textarea.classList.add('fade-in');
+      textarea.value = text || 'Your links will be displayed here...';
+      setTimeout(() => textarea.classList.remove('fade-in'), 300);
+    }
+
+    document.getElementById('totalEpisodes').addEventListener('input', function() {
+      if (!isProgrammaticChange) {
+        totalEpisodesManual = true;
+      }
+    });
+
+    document.getElementById('episodeRange').addEventListener('input', function() {
+      const totalInput = document.getElementById('totalEpisodes');
+      const parts = this.value.split('-');
+      
+      if (parts.length === 2) {
+        const endStr = parts[1].trim();
+        const endNum = parseInt(endStr, 10);
+        
+        if (!isNaN(endNum) && !totalEpisodesManual) {
+          isProgrammaticChange = true;
+          totalInput.value = endNum;
+          isProgrammaticChange = false;
+        }
+      }
+    });
+
+    function generateLinks() {
+      if (!document.getElementById('totalEpisodes').value) {
+        totalEpisodesManual = false;
+      }
+
+      const showName = document.getElementById('showName').value.trim() || 'Spirit Chronicles';
+      let season = document.getElementById('season').value.trim() || '2';
+      const episodeRange = document.getElementById('episodeRange').value.trim();
+      let totalEpisodes = document.getElementById('totalEpisodes').value.trim();
+      const quality = document.getElementById('quality').value.trim() || '720p';
+      const audio = document.getElementById('audio').value.trim() || 'Sub';
+      const startLink = document.getElementById('startLink').value.trim();
+      const channelUsername = document.getElementById('channelUsername').value.trim() || 'Ani_Weebs';
+      const customFormat = document.getElementById('customFormat').value.trim() || 
+        document.getElementById('customFormat').placeholder;
+
+      season = season.startsWith('S') ? season : `S${season}`;
+
+      const rangeParts = episodeRange.split('-').map(p => p.trim());
+      if (rangeParts.length !== 2 || !rangeParts[0] || !rangeParts[1]) {
+        showError('Invalid episode range format. Use: start-end (e.g., 1-12)');
+        return;
+      }
+
+      const startStr = rangeParts[0];
+      const endStr = rangeParts[1];
+      const startEpisode = parseInt(startStr, 10);
+      const endEpisode = parseInt(endStr, 10);
+
+      if (isNaN(startEpisode) || isNaN(endEpisode)) {
+        showError('Invalid episode numbers in range');
+        return;
+      }
+
+      if (!totalEpisodes) {
+        totalEpisodes = endEpisode;
+        document.getElementById('totalEpisodes').value = totalEpisodes;
+      }
+
+      const padding = Math.max(
+        startStr.length,
+        endStr.length,
+        totalEpisodes.toString().length
+      );
+
+      const linkMatch = startLink.match(/https:\/\/t\.me\/c\/(\d+)\/(\d+)/);
+      if (!linkMatch) {
+        showError('Invalid Telegram link format');
+        return;
+      }
+
+      localStorage.setItem('customFormat', customFormat);
+      localStorage.setItem('channelUsername', channelUsername);
+      localStorage.setItem('showName', showName);
+      localStorage.setItem('season', season);
+      localStorage.setItem('audio', audio);
+
+      const channelID = linkMatch[1];
+      let messageID = parseInt(linkMatch[2], 10);
+
+      let output = '';
+      for (let i = startEpisode; i <= endEpisode; i++) {
+        const episodeNum = i.toString().padStart(padding, '0');
+        const formattedLine = `https://t.me/c/${channelID}/${messageID} -n ${customFormat
+          .replace(/{ShowName}/g, showName)
+          .replace(/{Season}/g, season)
+          .replace(/{Episode}/g, `EP${episodeNum}`)
+          .replace(/{Quality}/g, quality)
+          .replace(/{Audio}/g, audio)
+          .replace(/{ChannelUsername}/g, channelUsername)}\n`;
+        
+        output += formattedLine;
+        messageID++;
+      }
+
+      fullOutput = output.trim();
+      updateOutput(fullOutput);
+    }
+
+    function copyToClipboard() {
+      if (!fullOutput) {
+        showError('No links to copy!');
+        return;
+      }
+
+      navigator.clipboard.writeText(fullOutput).then(() => {
+        showSuccess('Links copied to clipboard!');
+      }).catch(err => {
+        showError('Failed to copy links');
+      });
+    }
+  </script>
+</body>
+</html>
